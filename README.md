@@ -35,3 +35,11 @@
 #define max_time_unit 2000
 ```
 
+process_random_generator() 함수를 선언하여 위의 하이퍼파라미터 범위 내에서 프로세스 생성 데이터를 뽑아내는 로직을 구성하고 PCB에 저장시켜 놓았다.
+
+## 2026 - 05 - 21
+다른 과제하다 보니 어느새 10일 남짓, 계속 달려야 한다. 힘내보자.
+
+이제 해야하는 건 ready Queue와 waiting Queue의 구현이다.
+
+single processor를 기준으로 짰을 때,  
