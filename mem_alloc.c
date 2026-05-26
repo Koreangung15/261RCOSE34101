@@ -8,6 +8,7 @@ void PCB_cleanup() {
     for (int i = 0; i < MAX_PROCESS_COUNT; i++) {
         if (PCB[i] != NULL) {
             free(PCB[i]);
+            PCB[i] = NULL;
         }
     }
 }
@@ -16,6 +17,7 @@ void proc_cleanup() {
     for (int i = 0; i < MAX_PROCESS_COUNT; i++){
         if (proc[i] != NULL){
             free(proc[i]);
+            proc[i] = NULL;
         }
     }
 }
@@ -27,6 +29,7 @@ void cpu_cleanup() {
                 free(cpu[i] -> base);
             }
             free(cpu[i]);
+            cpu[i] = NULL;
         }
     }
 }
@@ -38,6 +41,7 @@ void io_cleanup() {
                 free(io[i] -> base);
             }
             free(io[i]);
+            io[i] = NULL;
         }
     }
 }
@@ -48,6 +52,7 @@ void rq_cleanup() {
                 free(rq[i] -> base);
             }
             free(rq[i]);
+            rq[i] = NULL;
         }
     }
 }
@@ -58,6 +63,7 @@ void wq_cleanup() {
                 free(wq[i] -> base);
             }
             free(wq[i]);
+            wq[i] = NULL;
         }
     }
 }
@@ -73,6 +79,7 @@ void cleanup(){
 
 void PCB_allocation() {
     for(int i = 0; i < MAX_PROCESS_COUNT; i++){
+        if (PCB[i] != NULL) free(PCB[i]); // 안전을 위한 중복 할당 방지
         PCB[i] = (Process_info*) malloc(sizeof(Process_info));
         if (PCB[i] == NULL) {
             fprintf(stderr, "Memory Allocation failed \n");
@@ -84,6 +91,7 @@ void PCB_allocation() {
 
 void proc_allocation() {
     for(int i = 0; i < MAX_PROCESS_COUNT; i++){
+        if (proc[i] != NULL) free(proc[i]);
         proc[i] = (Process*) malloc(sizeof(Process));
 
         if (proc[i] == NULL) {

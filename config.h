@@ -1,42 +1,27 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+
+// Linux Key Codes for VT100 sequences
+#define KEY_UP    65
+#define KEY_DOWN  66
+#define KEY_RIGHT 67
+#define KEY_LEFT  68
+#define KEY_ENTER 10
+
 #define MAX_VAL(a, b) ((a) > (b) ? (a) : (b))
-#define MIN_PROCESS_COUNT 5
-#define MAX_PROCESS_COUNT 20
-#define MAX_PRIORITY 20
+#define MAX_PROCESS_COUNT 20 // Max number of processes, used for array sizing
 #define PID_MIN 1000
 #define PID_MAX 2000
+#define MAX_PRIORITY 20
+#define IO_CYCLE_MAX 5 // Max number of IO cycles, used for burst_interval array sizing
 
-#define MIN_ARRIVAL 0
-#define MAX_ARRIVAL 20
-
-#define CPU_BOUND_CPU_MIN 5
-#define CPU_BOUND_CPU_MAX 20
-#define CPU_BOUND_IO_MIN 15
-#define CPU_BOUND_IO_MAX 20
-#define CPU_BOUND_IO_CYCLE_MIN 0
-#define CPU_BOUND_IO_CYCLE_MAX 2
-
-#define IO_BOUND_CPU_MIN 2
-#define IO_BOUND_CPU_MAX 5
-#define IO_BOUND_IO_MIN 20
-#define IO_BOUND_IO_MAX 25
-#define IO_BOUND_IO_CYCLE_MIN 3
-#define IO_BOUND_IO_CYCLE_MAX 5
-
-#define IO_CYCLE_MAX MAX_VAL(CPU_BOUND_IO_CYCLE_MAX, IO_BOUND_IO_CYCLE_MAX)
-
-#define PORTION_OF_CPU_BOUND 60
 #define MAX_TIME_LINE 10000
 
 #define MAX_CPU_COUNT 5
 #define MAX_TIER_COUNT 5
 #define MAX_RQ_COUNT MAX_VAL(MAX_CPU_COUNT, MAX_TIER_COUNT)
 #define MAX_IO_WQ_COUNT 5
-
-#define TIME_QUANTUM 5
-#define AGING_INTERVAL 10
 
 typedef struct Burst{
     int type;
@@ -136,8 +121,26 @@ typedef enum algorithm {
     PRIORITY_AGING, PREEMPTIVE_PRIORITY_AGING
 } algorithm;
 
+// User-configurable process generation parameters
+extern int user_min_process_count;
+extern int user_max_process_count;
+extern int user_max_priority;
+extern int user_min_arrival;
+extern int user_max_arrival;
 
-extern ProcConfig configs[];
+extern int user_cpu_bound_cpu_min, user_cpu_bound_cpu_max;
+extern int user_cpu_bound_io_min, user_cpu_bound_io_max;
+extern int user_cpu_bound_io_cycle_min, user_cpu_bound_io_cycle_max;
+
+extern int user_io_bound_cpu_min, user_io_bound_cpu_max;
+extern int user_io_bound_io_min, user_io_bound_io_max;
+extern int user_io_bound_io_cycle_min, user_io_bound_io_cycle_max;
+
+extern int user_portion_of_cpu_bound;
+
+// Global ProcConfig array, initialized dynamically in process_random_generator
+extern ProcConfig configs[2];
+
 extern int pid_candidate[PID_MAX - PID_MIN + 1];
 extern int PCB_size;
 extern Process_info* PCB[MAX_PROCESS_COUNT];
@@ -174,6 +177,12 @@ void rq_allocation();
 void wq_allocation();
 
 void pid_shuffle();
-void config(rq_situation rq_s, algorithm alg);
+void config(rq_situation rq_s);
+void set_rq_params(int index, int alg_choice, int preemptive, int tq, int aging);
+void get_process_generation_params();
+int select_menu(char* title, char** options, int count);
+void set_rq_params_interactive(int rq_idx);
+void display_pcb_table();
+int getch_linux(void);
 
 #endif

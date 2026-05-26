@@ -182,7 +182,7 @@ void scan_io_resource(rq_situation rq_s){
 void scan_cpu_resource(rq_situation rq_s){
 
     // Rollback Beausce of IO Interrupt
-
+    /*
     if (rq_s == SCP_SINGLE_QUEUE || rq_s == SCP_MLQ || rq_s == SCP_MLFQ){
         for(int i = 0; i < rq_count; i++){
             if (rq[i] -> io_interrupted && cpu[0] -> base -> current_process_count == 1){
@@ -215,6 +215,7 @@ void scan_cpu_resource(rq_situation rq_s){
             cpu[victim_idx] -> remain_time_quantum += cpu[victim_idx] -> remain_time_quantum == -1 ? 0 : 1;
         }
     }
+    */
     for(int i = 0; i < cpu_count; i++){
         if (cpu[i] -> base -> current_process_count == 1) {
             Process* proc_ptr = cpu[i] -> base -> items[0];
@@ -301,7 +302,7 @@ void scan_rq_resource(rq_situation rq_s){
         for(int idx = 0; idx < cpu_count; idx++){
             if (cpu[idx] -> base -> current_process_count == 1) {
                 int need_preemption = 0;
-                /*
+
                 if (rq[idx] -> io_interrupted) {
                     need_preemption = 1;
                 }
@@ -310,7 +311,7 @@ void scan_rq_resource(rq_situation rq_s){
                         need_preemption = rq[idx] -> compare(&(cpu[idx] -> base -> items[0]), &(rq[idx] -> base -> items[0])) > 0 ? 1 : 0;
                     }
                 }
-                */
+                
                 if (rq[idx] -> preemptive && rq[idx] -> base -> current_process_count > 0) {
                     need_preemption = rq[idx] -> compare(&(cpu[idx] -> base -> items[0]), &(rq[idx] -> base -> items[0])) > 0 ? 1 : 0;
                 }
@@ -358,12 +359,12 @@ void scan_rq_resource(rq_situation rq_s){
             }
             if (!need_preemption) {
                 for(int i = tier; i < rq_count; i++){
-                    /*
+                    
                     if (rq[i] -> io_interrupted){
                         need_preemption = 1;
                         break;
                     }
-                    */
+                    
 
                     if (i == tier){
                         if (rq[i] -> preemptive && rq[i] -> base -> current_process_count > 0 && rq[i] -> compare(&(cpu[0] -> base -> items[0]), &(rq[i] -> base -> items[0])) > 0) {
@@ -409,7 +410,7 @@ void scan_rq_resource(rq_situation rq_s){
         }
     }
     else{
-        /*
+        
         if (rq[0] -> io_interrupted){
             int victim_idx = -1;
 
@@ -423,7 +424,7 @@ void scan_rq_resource(rq_situation rq_s){
             if (victim_idx == -1){
                 victim_idx = 0;
                 for(int i = 1; i < cpu_count; i++){
-                    if(rq[0] -> compare(&(cpu[victim_idx] -> base -> items[0]), &(cpu[i] -> base -> items[0])) > 0) {
+                    if(rq[0] -> compare(&(cpu[victim_idx] -> base -> items[0]), &(cpu[i] -> base -> items[0])) < 0) {
                         victim_idx = i;
                     }
                 }
@@ -435,7 +436,7 @@ void scan_rq_resource(rq_situation rq_s){
                 cpu[victim_idx] -> base -> current_process_count = 0;
             }
         }
-        */
+        
 
         // Find blank CPU and running
         for (int i = 0; i < cpu_count; i++){
@@ -562,7 +563,7 @@ void simulate(rq_situation rq_s){
         }
 
         if (all_terminated){
-            printf("All Process are Termianted %d\n", current_time);
+            printf("All Process are Termianted at %d\n", current_time);
             break;
         }
         current_time++;

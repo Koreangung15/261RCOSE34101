@@ -17,4 +17,8 @@
 #define ANSI_BOLD_CYAN       "\033[1;36m"
 #define ANSI_BOLD_WHITE      "\033[1;37m"
 
+#define ANSI_HIGHLIGHT       "\033[43;30m" // Yellow Background, Black Text
+#define ANSI_HIDE_CURSOR     "\033[?25l"
+#define ANSI_SHOW_CURSOR     "\033[?25h"
+
 #endif
