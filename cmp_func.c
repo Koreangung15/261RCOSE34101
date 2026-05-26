@@ -2,9 +2,6 @@
 #include <stdlib.h>
 
 #include "config.h"
-#include "color.h"
-#include "mem_alloc.h"
-#include "random_distribution.h"
 #include "cmp_func.h"
 
 int p_info_compare(const void *a, const void *b) {
