@@ -15,6 +15,7 @@ ProcConfig configs[] = {
     [CPU_BOUND] = {CPU_BOUND_CPU_MIN, CPU_BOUND_CPU_MAX, CPU_BOUND_IO_MIN, CPU_BOUND_IO_MAX, CPU_BOUND_IO_CYCLE_MIN, CPU_BOUND_IO_CYCLE_MAX},
     [IO_BOUND] = {IO_BOUND_CPU_MIN, IO_BOUND_CPU_MAX, IO_BOUND_IO_MIN, IO_BOUND_IO_MAX, IO_BOUND_IO_CYCLE_MIN, IO_BOUND_IO_CYCLE_MAX}
 };
+RqConfig rqconfigs[MAX_RQ_COUNT] = {};
 
 Process* proc[MAX_PROCESS_COUNT] = {NULL};
 CPU_resource* cpu[MAX_CPU_COUNT] = {NULL};
@@ -47,7 +48,7 @@ void process_random_generator(){
     pid_shuffle();
     PCB_size = N;
 
-    PCB_allocation();
+    
 
     for(int i = 0; i < N; i++){
         PCB[i] -> pid = pid_candidate[i];
@@ -73,6 +74,11 @@ void process_random_generator(){
 
     printf(ANSI_GREEN "Process Information was generated successfully!" ANSI_RESET "\n");
     printf(ANSI_YELLOW "Number of Processes: " ANSI_RESET "%d\n", N);
+    print_PCB_table();
+    
+}
+
+void print_PCB_table() {
     printf(ANSI_BOLD "%-6s | %-12s | %-10s | %-12s | %s " ANSI_RESET, "PID", "Arrival Time", "Prioriy", "Type", "Burst Time");
     printf(ANSI_BOLD "(" ANSI_RESET);
     printf(ANSI_BOLD_BLUE " CPU" ANSI_RESET);
@@ -80,7 +86,7 @@ void process_random_generator(){
     printf(ANSI_BOLD_RED "IO(io_type) " ANSI_RESET);
     printf(ANSI_BOLD ")" ANSI_RESET "\n");
     printf(ANSI_BOLD_WHITE "------------------------------------------------------------------------------------------------------" ANSI_RESET "\n");
-    for (int i = 0; i < N; i++) {
+    for (int i = 0; i < PCB_size; i++) {
         printf(ANSI_BOLD "%-6d | %-12d | %-10d | %-12s | " ANSI_RESET, PCB[i] -> pid, PCB[i] -> arrival_time, PCB[i] -> priority, PCB[i] -> type == CPU_BOUND ? "CPU bound" : "IO bound");
         for (int j = 0; j < PCB[i] -> burst_interval_size; j++){
             switch (PCB[i] -> burst_interval[j].type){
@@ -100,7 +106,6 @@ void process_random_generator(){
         }
     }
 }
-
 
 void config(rq_situation rq_s, algorithm alg){
 
@@ -125,6 +130,7 @@ void config(rq_situation rq_s, algorithm alg){
     }
 
     for(int i = 0; i < MAX_CPU_COUNT; i++){
+        cpu[i] -> runtime = 0;
         cpu[i] -> base -> current_process_count = 0;
         cpu[i] -> chart_length = 0;
         cpu[i] -> remain_time_quantum = 0;
@@ -133,6 +139,7 @@ void config(rq_situation rq_s, algorithm alg){
     for(int i = 0; i < MAX_IO_WQ_COUNT; i++){
         io[i] -> base -> current_process_count = 0;
         io[i] -> chart_length = 0;
+        io[i] -> runtime = 0;
     }
 
     for(int i = 0; i < MAX_IO_WQ_COUNT; i++){
@@ -196,36 +203,15 @@ void config(rq_situation rq_s, algorithm alg){
         }
     }
     else{
-        int (*cmp_func)(const void *, const void *) = NULL;
-        
-        if (alg == FCFS) {
-            cmp_func = fcfs_cmp;
-        }
-        else if (alg == SJF || alg == PREEMPTIVE_SJF){
-            cmp_func = sjf_cmp;
-        }
-        else if (alg == RR) {
-            cmp_func = rr_fcfs_cmp;
-        }
-        else if (alg == PRIORITY || alg == PREEMPTIVE_PRIORITY || alg == PRIORITY_AGING || alg == PREEMPTIVE_PRIORITY_AGING){
-            cmp_func = priority_cmp;
-        }
-
-        int preemptive = (
-            alg == PREEMPTIVE_SJF 
-            || alg == PREEMPTIVE_PRIORITY 
-            || alg == PREEMPTIVE_PRIORITY_AGING
-        ) ? 1 : 0;
-
-        int time_quantum = alg == RR ? TIME_QUANTUM : 0;
-
-        int aging_interval = (alg == PRIORITY_AGING || alg == PREEMPTIVE_PRIORITY_AGING) ? AGING_INTERVAL : 0;
         for (int i = 0; i < rq_count; i++){
-            rq[i] -> compare = cmp_func;
-            rq[i] -> preemptive = preemptive;
-            rq[i] -> time_quantum = time_quantum;
-            rq[i] -> aging_interval = aging_interval;
+            
+            rq[i] -> compare = rqconfigs[i].compare;
+            rq[i] -> preemptive = rqconfigs[i].preemptive;
+            rq[i] -> time_quantum = rqconfigs[i].time_quantum;
+            rq[i] -> aging_interval = rqconfigs[i].aging_interval;
         }
+
+        
     }
 
     

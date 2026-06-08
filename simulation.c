@@ -70,12 +70,12 @@ void to_ready(Process* proc_ptr, rq_situation rq_s, int flag) {
         int cpu_idx = flag;
         if (cpu_idx < 0){
             // load balancing
-            int min_count = rq[0] -> base -> current_process_count;
-            cpu_idx = 0;
 
-            for(int j = 1; j < rq_count; j++){
-                if (min_count > rq[j] -> base -> current_process_count){
-                    min_count = rq[j] -> base -> current_process_count;
+            int min_runtime = cpu[0] -> runtime;
+            cpu_idx = 0;
+            for (int j = 1; j < cpu_count; j++){
+                if (min_runtime > cpu[j] -> runtime) {
+                    min_runtime = cpu[j] -> runtime;
                     cpu_idx = j;
                 }
             }
@@ -101,12 +101,14 @@ void tick_flow(rq_situation rq_s){
             cpu[i] -> base -> items[0] -> current_state.current_burst_time--;
 
             cpu[i] -> remain_time_quantum -= cpu[i] -> remain_time_quantum > 0 ? 1 : 0;
+            cpu[i] -> runtime++;
         }
     }
 
     for(int i = 0; i < io_wq_count; i++){
         if(io[i] -> base -> current_process_count == 1){
             io[i] -> base -> items[0] -> current_state.current_burst_time--;
+            io[i] -> runtime++;
         }
     }
 
@@ -302,6 +304,8 @@ void scan_rq_resource(rq_situation rq_s){
         for(int idx = 0; idx < cpu_count; idx++){
             if (cpu[idx] -> base -> current_process_count == 1) {
                 int need_preemption = 0;
+                
+                /*
                 if (rq[idx] -> io_interrupted) {
                     need_preemption = 1;
                 }
@@ -310,10 +314,10 @@ void scan_rq_resource(rq_situation rq_s){
                         need_preemption = rq[idx] -> compare(&(cpu[idx] -> base -> items[0]), &(rq[idx] -> base -> items[0])) > 0 ? 1 : 0;
                     }
                 }
+                */
                 if (rq[idx] -> preemptive && rq[idx] -> base -> current_process_count > 0) {
                     need_preemption = rq[idx] -> compare(&(cpu[idx] -> base -> items[0]), &(rq[idx] -> base -> items[0])) > 0 ? 1 : 0;
                 }
-                
                 if (need_preemption){
                     cpu[idx] -> base -> items[0] -> from_cpu = 1;
                     to_ready(cpu[idx] -> base -> items[0], rq_s, idx);
@@ -357,10 +361,12 @@ void scan_rq_resource(rq_situation rq_s){
             }
             if (!need_preemption) {
                 for(int i = tier; i < rq_count; i++){
+                    /*
                     if (rq[i] -> io_interrupted){
                         need_preemption = 1;
                         break;
                     }
+                    */
 
                     if (i == tier){
                         if (rq[i] -> preemptive && rq[i] -> base -> current_process_count > 0 && rq[i] -> compare(&(cpu[0] -> base -> items[0]), &(rq[i] -> base -> items[0])) > 0) {
@@ -406,6 +412,7 @@ void scan_rq_resource(rq_situation rq_s){
         }
     }
     else{
+        /*
         if (rq[0] -> io_interrupted){
             int victim_idx = -1;
 
@@ -431,6 +438,7 @@ void scan_rq_resource(rq_situation rq_s){
                 cpu[victim_idx] -> base -> current_process_count = 0;
             }
         }
+        */
 
         // Find blank CPU and running
         for (int i = 0; i < cpu_count; i++){
