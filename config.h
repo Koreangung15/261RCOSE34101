@@ -2,32 +2,32 @@
 #define CONFIG_H
 
 #define MAX_VAL(a, b) ((a) > (b) ? (a) : (b))
-#define MIN_PROCESS_COUNT 5
-#define MAX_PROCESS_COUNT 20
-#define MAX_PRIORITY 20
+#define MIN_PROCESS_COUNT 3
+#define MAX_PROCESS_COUNT 5
+#define MAX_PRIORITY 10
 #define PID_MIN 1000
-#define PID_MAX 2000
+#define PID_MAX 9999
 
 #define MIN_ARRIVAL 0
-#define MAX_ARRIVAL 20
+#define MAX_ARRIVAL 5
 
-#define CPU_BOUND_CPU_MIN 5
-#define CPU_BOUND_CPU_MAX 20
-#define CPU_BOUND_IO_MIN 15
-#define CPU_BOUND_IO_MAX 20
+#define CPU_BOUND_CPU_MIN 8
+#define CPU_BOUND_CPU_MAX 15
+#define CPU_BOUND_IO_MIN 5
+#define CPU_BOUND_IO_MAX 7
 #define CPU_BOUND_IO_CYCLE_MIN 0
-#define CPU_BOUND_IO_CYCLE_MAX 2
+#define CPU_BOUND_IO_CYCLE_MAX 1
 
-#define IO_BOUND_CPU_MIN 2
-#define IO_BOUND_CPU_MAX 5
-#define IO_BOUND_IO_MIN 20
-#define IO_BOUND_IO_MAX 25
-#define IO_BOUND_IO_CYCLE_MIN 3
-#define IO_BOUND_IO_CYCLE_MAX 5
+#define IO_BOUND_CPU_MIN 6
+#define IO_BOUND_CPU_MAX 8
+#define IO_BOUND_IO_MIN 10
+#define IO_BOUND_IO_MAX 12
+#define IO_BOUND_IO_CYCLE_MIN 1
+#define IO_BOUND_IO_CYCLE_MAX 2
 
 #define IO_CYCLE_MAX MAX_VAL(CPU_BOUND_IO_CYCLE_MAX, IO_BOUND_IO_CYCLE_MAX)
 
-#define PORTION_OF_CPU_BOUND 60
+#define PORTION_OF_CPU_BOUND 70
 #define MAX_TIME_LINE 10000
 
 #define MAX_CPU_COUNT 5
@@ -35,7 +35,6 @@
 #define MAX_RQ_COUNT MAX_VAL(MAX_CPU_COUNT, MAX_TIER_COUNT)
 #define MAX_IO_WQ_COUNT 5
 
-#define TIME_QUANTUM 5
 #define AGING_INTERVAL 10
 
 typedef struct Burst{
@@ -50,6 +49,13 @@ typedef struct ProcConfig{
     int io_min, io_max;
     int cycle_min, cycle_max;
 } ProcConfig;
+
+typedef struct RqConfig{
+    int preemptive;
+    int time_quantum;
+    int aging_interval;
+    int (*compare)(const void *a, const void *b);
+} RqConfig;
 
 typedef struct Process_info{
     int pid;
@@ -114,7 +120,7 @@ typedef struct CPU_resource{
 
     int chart[MAX_TIME_LINE];
     int chart_length;
-
+    int runtime;
     int remain_time_quantum;
 }CPU_resource;
 
@@ -123,6 +129,7 @@ typedef struct IO_resource{
 
     int chart[MAX_TIME_LINE];
     int chart_length;
+    int runtime;
 }IO_resource;
 
 typedef enum rq_situation { SCP_SINGLE_QUEUE, SCP_MLQ, SCP_MLFQ, MCP_COMMON_QUEUE, MCP_OWN_QUEUE } rq_situation;
@@ -138,6 +145,7 @@ typedef enum algorithm {
 
 
 extern ProcConfig configs[];
+extern RqConfig rqconfigs[MAX_RQ_COUNT];
 extern int pid_candidate[PID_MAX - PID_MIN + 1];
 extern int PCB_size;
 extern Process_info* PCB[MAX_PROCESS_COUNT];
@@ -175,5 +183,6 @@ void wq_allocation();
 
 void pid_shuffle();
 void config(rq_situation rq_s, algorithm alg);
+void print_PCB_table();
 
 #endif
