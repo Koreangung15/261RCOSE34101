@@ -52,7 +52,7 @@ int main() {
             printf(" 1: Single Core Processor, Multilevel Queue             %d tier Ready Queue (Built_in_Scheduling_Criteria)\n", MAX_RQ_COUNT);
             printf(" 2: Single Core Processor, Multilevel Feedback Queue    %d tier Ready Queue (Built_in_Scheduling_Criteria)\n", MAX_RQ_COUNT);
             printf(" 3: Multi Core Processor, Common Queue\n");
-            printf(" 4: Multi Core Processor, Own Queue                     %d Ready Queue (Equivalent_Scheduling_Criteria)\n", MAX_RQ_COUNT);
+            printf(" 4: Multi Core Processor, Own Queue                     %d Ready Queue\n", MAX_RQ_COUNT);
             printf("--------------------------------------------------\n");
             
             rq_s = get_safe_int(">> Enter Selection (0-4): ", 0, 4);
