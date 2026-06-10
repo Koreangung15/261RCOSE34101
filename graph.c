@@ -43,20 +43,37 @@ void graph(){
     }
 
     printf("\nEvaluation\n");
-    printf(ANSI_BOLD "%6s | %6s | %6s | %12s | %12s | %12s | %12s \n" ANSI_RESET, "PID", "CPU", "IO", "READY_QUEUE", "WAIT_QUEUE", "TURN_AROUND", "WAITING_TIME");
+    printf(ANSI_BOLD "%6s | %6s | %6s | %12s | %12s \n" ANSI_RESET, "PID", "CPU", "IO", "READY_QUEUE", "WAIT_QUEUE");
     printf("-----------------------------------------------------------------------------------------\n");
 
     for(int i = 0; i < PCB_size; i++){
-        printf(ANSI_BOLD "%6d | %6d | %6d | %12d | %12d | %12d | %12d " ANSI_RESET "\n", 
+        printf(ANSI_BOLD "%6d | %6d | %6d | %12d | %12d " ANSI_RESET "\n", 
             proc[i] -> p_info_ptr -> pid,
             cpu_running_time[i],
             io_running_time[i],
             waiting_time_in_ready[i],
-            waiting_time_in_waiting[i],
-            cpu_running_time[i] + io_running_time[i] + waiting_time_in_ready[i] + waiting_time_in_waiting[i],
-            waiting_time_in_ready[i]
+            waiting_time_in_waiting[i]
         );
     }
+    int total_cpu_time = 0;
+    int total_io_time = 0;
+    int total_rq_time = 0;
+    int total_wq_time = 0;
+
+    for(int i = 0; i < PCB_size; i++){
+        total_cpu_time += cpu_running_time[i];
+        total_io_time += io_running_time[i];
+        total_rq_time += waiting_time_in_ready[i];
+        total_wq_time += waiting_time_in_waiting[i];
+    }
+    printf("-----------------------------------------------------------------------------------------\n");
+    printf(ANSI_BOLD "%7s| %6.3f | %6.3f | %12.3f | %12.3f " ANSI_RESET "\n",
+        "Average",
+        (float) total_cpu_time / (float) PCB_size,
+        (float) total_io_time / (float) PCB_size,
+        (float) total_rq_time / (float) PCB_size,
+        (float) total_wq_time / (float) PCB_size
+    );
     printf("\n\n");
 
     for(int i = 0; i < cpu_count; i++){
@@ -162,20 +179,38 @@ void file_graph(FILE* fp) {
     }
 
     fprintf(fp, "\nEvaluation\n");
-    fprintf(fp, "%6s | %6s | %6s | %12s | %12s | %12s | %12s \n", "PID", "CPU", "IO", "READY_QUEUE", "WAIT_QUEUE", "TURN_AROUND", "WAITING_TIME");
+    fprintf(fp, "%6s | %6s | %6s | %12s | %12s \n", "PID", "CPU", "IO", "READY_QUEUE", "WAIT_QUEUE");
     fprintf(fp, "-----------------------------------------------------------------------------------------\n");
 
     for(int i = 0; i < PCB_size; i++){
-        fprintf(fp, "%6d | %6d | %6d | %12d | %12d | %12d | %12d \n", 
-            proc[i] -> p_info_ptr -> pid,
-            cpu_running_time[i],
-            io_running_time[i],
-            waiting_time_in_ready[i],
-            waiting_time_in_waiting[i],
-            cpu_running_time[i] + io_running_time[i] + waiting_time_in_ready[i] + waiting_time_in_waiting[i],
-            waiting_time_in_ready[i]
+        fprintf(fp, "%6d | %6d | %6d | %12d | %12d \n", 
+            proc[i] -> p_info_ptr -> pid, 
+            cpu_running_time[i], 
+            io_running_time[i], 
+            waiting_time_in_ready[i], 
+            waiting_time_in_waiting[i]
         );
     }
+
+    int total_cpu_time = 0;
+    int total_io_time = 0;
+    int total_rq_time = 0;
+    int total_wq_time = 0;
+
+    for(int i = 0; i < PCB_size; i++){
+        total_cpu_time += cpu_running_time[i];
+        total_io_time += io_running_time[i];
+        total_rq_time += waiting_time_in_ready[i];
+        total_wq_time += waiting_time_in_waiting[i];
+    }
+    fprintf(fp, "-----------------------------------------------------------------------------------------\n");
+    fprintf(fp, "%7s| %6.3f | %6.3f | %12.3f | %12.3f \n",
+        "Average",
+        (float) total_cpu_time / (float) PCB_size,
+        (float) total_io_time / (float) PCB_size,
+        (float) total_rq_time / (float) PCB_size,
+        (float) total_wq_time / (float) PCB_size
+    );
     fprintf(fp, "\n\n");
 
     for(int i = 0; i < cpu_count; i++){
